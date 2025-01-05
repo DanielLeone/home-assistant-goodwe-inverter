@@ -7,8 +7,7 @@ import asyncio
 import logging
 from typing import Any
 
-from goodwe import Inverter, InverterError, RequestFailedException, ProtocolCommand, \
-    UdpInverterProtocol
+from goodwe import Inverter, InverterError, RequestFailedException, ProtocolCommand, UdpInverterProtocol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL, EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant, CALLBACK_TYPE
@@ -132,7 +131,7 @@ class GoodweUpdateCoordinatorWithWakeUp(GoodweUpdateCoordinator):
         self._cancel_wakeup_interval = async_track_time_interval(
             hass=self.hass,
             action=send_wakeup_packet,
-            interval=timedelta(minutes=1),
+            interval=timedelta(minutes=10),
             name="goodwe_inverter_send_wakeup_packet"
         )
 
@@ -154,6 +153,7 @@ class GoodweUpdateCoordinatorWithWakeUp(GoodweUpdateCoordinator):
             if result is not None:
                 raw_data = result.response_data()
                 self.logger.debug(f"Received response from wakeup packet: {repr(raw_data)}")
-            self.logger.debug(f"No response received from wakeup packet")
+            else:
+                self.logger.debug(f"No response received from wakeup packet")
         except asyncio.CancelledError:
             self.logger.debug(f"No valid response received to wakeup packet")
